@@ -1,0 +1,35 @@
+plugins {
+    id 'java'
+    id 'project-report'
+    id 'com.github.hierynomus.license-report' version '0.16.1'
+}
+
+repositories {
+    mavenCentral()
+}
+
+defaultTasks 'clean', 'copyRuntime'
+
+downloadLicenses {
+    dependencyConfiguration = 'runtimeClasspath'
+}
+
+task copyRuntime(type: Copy) {
+    description 'Download runtimeClasspath jars.'
+    dependsOn 'dependencyReport', 'downloadLicenses'
+    from configurations.runtimeClasspath
+    into 'build/runtime'
+}
+
+task zipRuntime(type: Zip) {
+    description 'Collect runtimeClasspath jars into a zip.'
+    dependsOn 'copyRuntime'
+    from 'build'
+    include 'reports/**', 'runtime/**'
+    archiveFileName = 'runtime.zip'
+}
+
+dependencies {
+    // Please put libraries you want.
+    implementation 'org.postgresql:postgresql:42.7.2'
+}
